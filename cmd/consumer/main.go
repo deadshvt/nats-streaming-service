@@ -13,7 +13,9 @@ import (
 	"github.com/deadshvt/nats-streaming-service/internal/nats"
 	"github.com/deadshvt/nats-streaming-service/internal/order/handler"
 	"github.com/deadshvt/nats-streaming-service/internal/order/repository"
+	"github.com/deadshvt/nats-streaming-service/internal/prometheus"
 	"github.com/deadshvt/nats-streaming-service/pkg/logger"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/gorilla/mux"
 	"github.com/nats-io/stan.go"
@@ -86,10 +88,16 @@ func main() {
 
 	baseLogger.Info().Msg("Consumer subscribed to NATS Streaming Server")
 
+	prometheus.Init()
+
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", orderHandler.GetOrderID).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/order/{id}", orderHandler.GetOrderByID).Methods(http.MethodGet)
+	r.Handle("/metrics", promhttp.Handler())
+
+	r.HandleFunc("/", prometheus.Handler("/", orderHandler.GetOrderID)).
+		Methods(http.MethodGet, http.MethodPost)
+	r.HandleFunc("/order/{id}", prometheus.Handler("/order/{id}", orderHandler.GetOrderByID)).
+		Methods(http.MethodGet)
 
 	mx := middleware.Panic(baseLogger, r)
 	mx = middleware.Logging(baseLogger, mx)

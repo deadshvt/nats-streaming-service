@@ -17,6 +17,7 @@ import (
 
 const (
 	Count = 5
+	Dir   = "./schema"
 )
 
 func main() {
@@ -40,7 +41,7 @@ func main() {
 
 	baseLogger.Info().Msg("Producer connected to NATS Streaming Server")
 
-	files, err := os.ReadDir("data")
+	files, err := os.ReadDir(Dir)
 	if err != nil {
 		baseLogger.Error().Msgf("Failed to read directory: %v", err)
 	}
@@ -50,7 +51,7 @@ func main() {
 			continue
 		}
 
-		fileData, err := os.ReadFile("data/" + file.Name())
+		fileData, err := os.ReadFile(Dir + "/" + file.Name())
 		if err != nil {
 			baseLogger.Error().Msgf("Failed to read file: %v", err)
 			continue
