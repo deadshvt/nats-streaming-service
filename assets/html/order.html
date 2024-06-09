@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="/assets/styles/main.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #343a40;
+        }
+
+        p {
+            margin: 5px 0;
+            color: #495057;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .items ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .items li {
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #e9ecef;
+        }
+
+        .items p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Order Details</h1>
+
+    <div class="section">
+        <h2>Order Information</h2>
+        <p><strong>Order UID:</strong> {{.OrderUid}}</p>
+        <p><strong>Track Number:</strong> {{.TrackNumber}}</p>
+        <p><strong>Entry:</strong> {{.Entry}}</p>
+        <p><strong>Locale:</strong> {{.Locale}}</p>
+        <p><strong>Internal Signature:</strong> {{.InternalSignature}}</p>
+        <p><strong>Customer ID:</strong> {{.CustomerId}}</p>
+        <p><strong>Delivery Service:</strong> {{.DeliveryService}}</p>
+        <p><strong>Shard Key:</strong> {{.Shardkey}}</p>
+        <p><strong>SM ID:</strong> {{.SmId}}</p>
+        <p><strong>Date Created:</strong> {{.DateCreated}}</p>
+        <p><strong>OOF Shard:</strong> {{.OofShard}}</p>
+    </div>
+
+    <div class="section">
+        <h2>Delivery Information</h2>
+        <p><strong>Name:</strong> {{.Delivery.Name}}</p>
+        <p><strong>Phone:</strong> {{.Delivery.Phone}}</p>
+        <p><strong>Zip:</strong> {{.Delivery.Zip}}</p>
+        <p><strong>City:</strong> {{.Delivery.City}}</p>
+        <p><strong>Address:</strong> {{.Delivery.Address}}</p>
+        <p><strong>Region:</strong> {{.Delivery.Region}}</p>
+        <p><strong>Email:</strong> {{.Delivery.Email}}</p>
+    </div>
+
+    <div class="section">
+        <h2>Payment Information</h2>
+        <p><strong>Transaction:</strong> {{.Payment.Transaction}}</p>
+        <p><strong>Request ID:</strong> {{.Payment.RequestId}}</p>
+        <p><strong>Currency:</strong> {{.Payment.Currency}}</p>
+        <p><strong>Provider:</strong> {{.Payment.Provider}}</p>
+        <p><strong>Amount:</strong> {{.Payment.Amount}}</p>
+        <p><strong>Payment Date:</strong> {{.Payment.PaymentDt}}</p>
+        <p><strong>Bank:</strong> {{.Payment.Bank}}</p>
+        <p><strong>Delivery Cost:</strong> {{.Payment.DeliveryCost}}</p>
+        <p><strong>Goods Total:</strong> {{.Payment.GoodsTotal}}</p>
+        <p><strong>Custom Fee:</strong> {{.Payment.CustomFee}}</p>
+    </div>
+
+    <div class="section items">
+        <h2>Items</h2>
+        <ul>
+            {{range .Items}}
+            <li>
+                <p><strong>Chrt ID:</strong> {{.ChrtId}}</p>
+                <p><strong>Track Number:</strong> {{.TrackNumber}}</p>
+                <p><strong>Price:</strong> {{.Price}}</p>
+                <p><strong>Rid:</strong> {{.Rid}}</p>
+                <p><strong>Name:</strong> {{.Name}}</p>
+                <p><strong>Sale:</strong> {{.Sale}}</p>
+                <p><strong>Size:</strong> {{.Size}}</p>
+                <p><strong>Total Price:</strong> {{.TotalPrice}}</p>
+                <p><strong>Nm ID:</strong> {{.NmId}}</p>
+                <p><strong>Brand:</strong> {{.Brand}}</p>
+                <p><strong>Status:</strong> {{.Status}}</p>
+            </li>
+            {{end}}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

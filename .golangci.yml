@@ -1,0 +1,26 @@
+linters:
+  enable:
+    - whitespace
+    - goconst
+    - gofmt
+    - goimports
+    - gosimple
+    - ineffassign
+    - misspell
+    - durationcheck
+    - godot
+    - bodyclose
+    - dupl
+    - gochecknoglobals
+    - gocognit
+    - goconst
+    - gocritic
+    - gofmt
+    - goimports
+    - goprintffuncname
+    - unconvert
+    - unused
+    - lll
+    - misspell
+    - nakedret
+    - unparam
