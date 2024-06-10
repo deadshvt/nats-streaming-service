@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -34,7 +35,7 @@ func NewOrderHandler(repository entity.OrderRepository, logger zerolog.Logger) *
 	}
 }
 
-func (h *OrderHandler) CreateOrder(data []byte) error {
+func (h *OrderHandler) CreateOrder(ctx context.Context, data []byte) error {
 	h.Logger.Info().Msg("Creating order...")
 
 	var order entity.Order
@@ -51,7 +52,7 @@ func (h *OrderHandler) CreateOrder(data []byte) error {
 		return msg
 	}
 
-	err = h.Repository.CreateOrder(&order)
+	err = h.Repository.CreateOrder(ctx, &order)
 	if err != nil {
 		msg := errs.WrapError(errs.ErrCreateOrder, err)
 		h.Logger.Error().Msg(msg.Error())
@@ -76,7 +77,7 @@ func (h *OrderHandler) GetOrderByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.Repository.GetOrderByID(id)
+	order, err := h.Repository.GetOrderByID(r.Context(), id)
 	if err != nil {
 		msg := errs.WrapError(errs.ErrGetOrderByID, err).Error()
 		h.Logger.Error().Msg(msg)
@@ -101,7 +102,7 @@ func (h *OrderHandler) GetOrderID(w http.ResponseWriter, r *http.Request) {
 			OrderID string
 		}{OrderID: orderID})
 
-		_, err := h.Repository.GetOrderByID(orderID)
+		_, err := h.Repository.GetOrderByID(r.Context(), orderID)
 		if err != nil {
 			msg := errs.WrapError(errs.ErrGetOrderByID, err).Error()
 			h.Logger.Error().Msg(msg)

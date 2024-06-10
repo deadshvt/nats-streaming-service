@@ -1,13 +1,13 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
-	"github.com/deadshvt/nats-streaming-service/internal/errs"
-
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 )
@@ -40,28 +40,28 @@ func (p *Postgres) Disconnect() error {
 	return p.DB.Close()
 }
 
-func (p *Postgres) CreateOrder(order *entity.Order) error {
+func (p *Postgres) CreateOrder(ctx context.Context, order *entity.Order) (err error) {
+	p.Logger.Info().Msg("Creating order...")
+
 	data, err := json.Marshal(order)
 	if err != nil {
 		return err
 	}
 
-	tx, err := p.DB.Begin()
+	tx, err := p.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if tErr := tx.Rollback(); tErr != nil {
-			p.Logger.Error().Msgf("Failed to rollback transaction: %v", tErr)
-			if err == nil {
-				err = tErr
-			} else {
-				err = errs.WrapError(err, tErr)
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				p.Logger.Error().Msgf("Failed to rollback transaction: %v", rbErr)
+				err = fmt.Errorf("%v and %v", err, rbErr)
 			}
 		}
 	}()
 
-	stmt, err := tx.Prepare(`
+	stmt, err := tx.PrepareContext(ctx, `
 		INSERT INTO "order" (data) VALUES ($1)
 	`)
 	if err != nil {
@@ -69,7 +69,7 @@ func (p *Postgres) CreateOrder(order *entity.Order) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(data)
+	_, err = stmt.ExecContext(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -82,23 +82,21 @@ func (p *Postgres) CreateOrder(order *entity.Order) error {
 	return nil
 }
 
-func (p *Postgres) GetOrderByID(id string) (*entity.Order, error) {
-	tx, err := p.DB.Begin()
+func (p *Postgres) GetOrderByID(ctx context.Context, id string) (order *entity.Order, err error) {
+	tx, err := p.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		if tErr := tx.Rollback(); tErr != nil {
-			p.Logger.Error().Msgf("Failed to rollback transaction: %v", tErr)
-			if err == nil {
-				err = tErr
-			} else {
-				err = errs.WrapError(err, tErr)
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				p.Logger.Error().Msgf("Failed to rollback transaction: %v", rbErr)
+				err = fmt.Errorf("%v and %v", err, rbErr)
 			}
 		}
 	}()
 
-	stmt, err := tx.Prepare(`
+	stmt, err := tx.PrepareContext(ctx, `
 		SELECT data FROM "order" WHERE data->>('order_uid') = $1
 	`)
 	if err != nil {
@@ -107,7 +105,7 @@ func (p *Postgres) GetOrderByID(id string) (*entity.Order, error) {
 	defer stmt.Close()
 
 	var result []byte
-	err = stmt.QueryRow(id).Scan(&result)
+	err = stmt.QueryRowContext(ctx, id).Scan(&result)
 	if err != nil {
 		return nil, err
 	}
@@ -117,32 +115,29 @@ func (p *Postgres) GetOrderByID(id string) (*entity.Order, error) {
 		return nil, err
 	}
 
-	var order entity.Order
-	err = json.Unmarshal(result, &order)
+	err = json.Unmarshal(result, order)
 	if err != nil {
 		return nil, err
 	}
 
-	return &order, nil
+	return order, nil
 }
 
-func (p *Postgres) GetAllOrders() ([]*entity.Order, error) {
-	tx, err := p.DB.Begin()
+func (p *Postgres) GetAllOrders(ctx context.Context) (orders []*entity.Order, err error) {
+	tx, err := p.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		if tErr := tx.Rollback(); tErr != nil {
-			p.Logger.Error().Msgf("Failed to rollback transaction: %v", tErr)
-			if err == nil {
-				err = tErr
-			} else {
-				err = errs.WrapError(err, tErr)
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				p.Logger.Error().Msgf("Failed to rollback transaction: %v", rbErr)
+				err = fmt.Errorf("%v and %v", err, rbErr)
 			}
 		}
 	}()
 
-	stmt, err := tx.Prepare(`
+	stmt, err := tx.PrepareContext(ctx, `
 		SELECT data FROM "order"
 	`)
 	if err != nil {
@@ -150,13 +145,11 @@ func (p *Postgres) GetAllOrders() ([]*entity.Order, error) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query()
+	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var orders []*entity.Order
 
 	for rows.Next() {
 		var result []byte

@@ -1,6 +1,8 @@
 package database
 
 import (
+	"context"
+
 	"github.com/deadshvt/nats-streaming-service/internal/database/postgres"
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
@@ -10,9 +12,9 @@ type OrderDB interface {
 	Connect() error
 	Disconnect() error
 
-	CreateOrder(order *entity.Order) error
-	GetOrderByID(id string) (*entity.Order, error)
-	GetAllOrders() ([]*entity.Order, error)
+	CreateOrder(ctx context.Context, order *entity.Order) error
+	GetOrderByID(ctx context.Context, id string) (*entity.Order, error)
+	GetAllOrders(ctx context.Context) ([]*entity.Order, error)
 }
 
 func InitOrderDB(dbType string) (OrderDB, error) {

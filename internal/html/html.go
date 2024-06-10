@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
+
 	"github.com/rs/zerolog"
 )
 

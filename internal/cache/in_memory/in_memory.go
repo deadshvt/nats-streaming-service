@@ -1,6 +1,7 @@
 package in_memory
 
 import (
+	"context"
 	"sync"
 
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
@@ -19,12 +20,17 @@ func NewInMemory() *InMemory {
 	}
 }
 
-func (r *InMemory) CreateOrder(order *entity.Order) error {
+func (r *InMemory) CreateOrder(ctx context.Context, order *entity.Order) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if _, ok := r.orders[order.OrderUid]; ok {
-		return errs.ErrOrderExists
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		if _, ok := r.orders[order.OrderUid]; ok {
+			return errs.ErrOrderExists
+		}
 	}
 
 	r.orders[order.OrderUid] = order
@@ -32,12 +38,17 @@ func (r *InMemory) CreateOrder(order *entity.Order) error {
 	return nil
 }
 
-func (r *InMemory) GetOrderByID(id string) (*entity.Order, error) {
+func (r *InMemory) GetOrderByID(ctx context.Context, id string) (*entity.Order, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	if _, ok := r.orders[id]; !ok {
-		return nil, errs.ErrOrderNotFound
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		if _, ok := r.orders[id]; !ok {
+			return nil, errs.ErrOrderNotFound
+		}
 	}
 
 	return r.orders[id], nil

@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/deadshvt/nats-streaming-service/internal/cache"
 	"github.com/deadshvt/nats-streaming-service/internal/config"
@@ -15,10 +18,10 @@ import (
 	"github.com/deadshvt/nats-streaming-service/internal/order/repository"
 	"github.com/deadshvt/nats-streaming-service/internal/prometheus"
 	"github.com/deadshvt/nats-streaming-service/pkg/logger"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/gorilla/mux"
 	"github.com/nats-io/stan.go"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,6 +30,8 @@ func main() {
 	if err != nil {
 		log.Fatal().Msgf("Failed to initialize logger: %v", err)
 	}
+
+	baseLogger.Info().Msg("Initialized logger")
 
 	config.Load(".env")
 
@@ -44,6 +49,8 @@ func main() {
 	}(nc)
 
 	baseLogger.Info().Msg("Consumer connected to NATS Streaming Server")
+
+	ctx := context.Background()
 
 	// db
 	orderDB, err := database.InitOrderDB(os.Getenv("DB_TYPE"))
@@ -66,7 +73,7 @@ func main() {
 	orderRepositoryLogger := logger.NewLogger(baseLogger, "OrderRepository")
 	orderRepository := repository.NewOrderRepository(orderDB, orderCache, orderRepositoryLogger)
 
-	err = orderRepository.LoadCacheFromDB()
+	err = orderRepository.LoadCacheFromDB(ctx)
 	if err != nil {
 		baseLogger.Fatal().Msgf("Failed to load cache from db: %v", err)
 	}
@@ -78,7 +85,7 @@ func main() {
 	orderHandler := handler.NewOrderHandler(orderRepository, orderHandlerLogger)
 
 	if _, err = nc.Subscribe(os.Getenv("NATS_SUBJECT"), func(m *stan.Msg) {
-		err = orderHandler.CreateOrder(m.Data)
+		err = orderHandler.CreateOrder(ctx, m.Data)
 		if err != nil {
 			baseLogger.Error().Msgf("Failed to handle order: %v", err)
 		}
@@ -109,9 +116,16 @@ func main() {
 
 	baseLogger.Info().Msgf("Starting server on port=:%s", port)
 
-	if err = http.ListenAndServe(":"+port, mx); err != nil {
-		baseLogger.Fatal().Msgf("Failed to start server: %v", err)
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: mx,
 	}
+
+	go func() {
+		if err = srv.ListenAndServe(); err != nil && !errors.Is(http.ErrServerClosed, err) {
+			baseLogger.Fatal().Msgf("Failed to start server: %v", err)
+		}
+	}()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
@@ -119,4 +133,13 @@ func main() {
 	<-stop
 
 	baseLogger.Info().Msg("Shutting down consumer...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	if err = srv.Shutdown(ctx); err != nil {
+		baseLogger.Fatal().Msgf("Failed to gracefully shutdown server: %v", err)
+	}
+
+	baseLogger.Info().Msg("Server gracefully stopped")
 }

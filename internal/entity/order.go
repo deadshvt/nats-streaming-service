@@ -1,10 +1,14 @@
 package entity
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type OrderRepository interface {
-	CreateOrder(order *Order) error
-	GetOrderByID(id string) (*Order, error)
+	CreateOrder(ctx context.Context, order *Order) error
+	GetOrderByID(ctx context.Context, id string) (*Order, error)
+	LoadCacheFromDB(ctx context.Context) error
 }
 
 type Order struct {
