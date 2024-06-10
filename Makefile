@@ -9,15 +9,16 @@ DB_USER=postgres
 DB_PASSWORD=password
 DB_NAME=order
 DB_SSLMODE=disable
+DB_DSN="$(DB)://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
 
 prometheus:
 	prometheus --config.file=$(PROMETHEUS_CONFIG)
 
 migrate-up:
-	migrate -path internal/database/migration -database "$(DB)://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)" -verbose up
+	migrate -path internal/database/migration -database $(DB_DSN) -verbose up
 
 migrate-down:
-	migrate -path internal/database/migration -database "$(DB)://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)" -verbose down
+	migrate -path internal/database/migration -database $(DB_DSN) -verbose down
 
 lint:
 	golangci-lint run
