@@ -1,4 +1,4 @@
-.PHONY: prometheus migrate-up migrate-down lint consumer producer server container loadtest
+.PHONY: prometheus migrate-up migrate-down lint consumer producer server container loadtest test
 
 PROMETHEUS_CONFIG=prometheus.yml
 
@@ -36,3 +36,6 @@ container:
 
 loadtest:
 	go run loadtest/loadtest.go
+
+test:
+	go test -v ./...

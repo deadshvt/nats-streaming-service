@@ -81,7 +81,7 @@ func (h *OrderHandler) GetOrderByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		msg := errs.WrapError(errs.ErrGetOrderByID, err).Error()
 		h.Logger.Error().Msg(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
+		http.Error(w, msg, http.StatusNotFound)
 		return
 	}
 
