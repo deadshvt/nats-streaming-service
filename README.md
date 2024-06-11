@@ -27,31 +27,27 @@ go mod tidy
 
 ## Running the application
 
-1. **Set up migrations**
+1. **Set up nats, postgres, prometheus and migrations**
 
 ```shell
-make migrate-up
+make run
 ```
 
-2. **Set up containers**
-
-```shell
-make containers
-```
-
-3. **Run the consumer:**
+2. **Run the consumer:**
 
 ```shell
 make consumer
 ```
 
-4. **Run the producer:**
+3. **Run the producer:**
 
 ```shell
 make producer
 ```
 
-5. **Open browser in `http://localhost`**
+4. **Open browser in `http://localhost:8080` to see home page to get order**
+
+5. **Open browser in `http://localhost:9090` to see the metrics**
 
 ## Running tests
 
@@ -72,13 +68,3 @@ make loadtest
 ```shell
 make lint
 ```
-
-## Monitoring
-
-1. **Set up Prometheus**
-
-```shell
-make prometheus
-```
-
-2. **Open browser in `http://localhost:9090`**
