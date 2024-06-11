@@ -8,6 +8,10 @@ import (
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
 )
 
+const (
+	Postgres = "postgres"
+)
+
 type OrderDB interface {
 	Connect() error
 	Disconnect() error
@@ -21,7 +25,7 @@ func InitOrderDB(dbType string) (OrderDB, error) {
 	var db OrderDB
 
 	switch dbType {
-	case "postgres":
+	case Postgres:
 		db = &postgres.Postgres{}
 	default:
 		return nil, errs.ErrUnsupportedDBType
