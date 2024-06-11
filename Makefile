@@ -1,4 +1,4 @@
-.PHONY: run prometheus wait-postgres migrate-up migrate-down lint consumer producer containers-up containers-down loadtest test
+.PHONY: run wait-postgres migrate-up migrate-down lint consumer producer containers-up containers-down loadtest test
 
 DB=postgresql
 DB_HOST=postgres
