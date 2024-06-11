@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/deadshvt/nats-streaming-service/internal/nats"
 	"os"
 	"strings"
 	"time"
@@ -28,7 +29,7 @@ func main() {
 
 	config.Load(".env")
 
-	sc, err := stan.Connect(os.Getenv("NATS_CLUSTER_ID"), "producer")
+	sc, err := nats.Init(os.Getenv("NATS_CLUSTER_ID"), "producer", os.Getenv("NATS_URL"))
 	if err != nil {
 		panic(err)
 	}

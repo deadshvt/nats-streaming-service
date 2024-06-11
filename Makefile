@@ -1,9 +1,7 @@
-.PHONY: prometheus migrate-up migrate-down lint consumer producer server container loadtest test
-
-PROMETHEUS_CONFIG=prometheus.yml
+.PHONY: run prometheus wait-postgres migrate-up migrate-down lint consumer producer containers-up containers-down loadtest test
 
 DB=postgresql
-DB_HOST=localhost
+DB_HOST=postgres
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=password
@@ -11,29 +9,31 @@ DB_NAME=order
 DB_SSLMODE=disable
 DB_DSN="$(DB)://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
 
-prometheus:
-	prometheus --config.file=$(PROMETHEUS_CONFIG)
+run: containers-up migrate-up
 
-migrate-up:
-	migrate -path internal/database/migration -database $(DB_DSN) -verbose up
+wait-postgres:
+	@until docker exec -t $(shell docker compose ps -q postgres) pg_isready -U postgres; do sleep 1; done
 
-migrate-down:
-	migrate -path internal/database/migration -database $(DB_DSN) -verbose down
+migrate-up: wait-postgres
+	docker run --rm --network $(shell docker inspect --format='{{.HostConfig.NetworkMode}}' $(shell docker compose ps -q postgres)) -v $(shell pwd)/internal/database/migration:/migrations migrate/migrate -path /migrations/ -database $(DB_DSN) -verbose up
+
+migrate-down: wait-postgres
+	docker run --rm --network $(shell docker inspect --format='{{.HostConfig.NetworkMode}}' $(shell docker compose ps -q postgres)) -v $(shell pwd)/internal/database/migration:/migrations migrate/migrate -path /migrations/ -database $(DB_DSN) -verbose down
 
 lint:
 	golangci-lint run
 
 consumer:
-	go run cmd/consumer/main.go
+	docker compose up consumer
 
 producer:
-	go run cmd/producer/main.go
+	docker compose up producer
 
-server:
-	go run cmd/server/main.go
+containers-up:
+	docker compose up -d postgres nats-streaming prometheus
 
-container:
-	docker compose up -d
+containers-down:
+	docker compose down
 
 loadtest:
 	go run loadtest/loadtest.go

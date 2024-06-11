@@ -37,7 +37,7 @@ func main() {
 
 	baseLogger.Info().Msg("Loaded .env file")
 
-	nc, err := nats.Init(os.Getenv("NATS_CLUSTER_ID"), "consumer")
+	sc, err := nats.Init(os.Getenv("NATS_CLUSTER_ID"), "consumer", os.Getenv("NATS_URL"))
 	if err != nil {
 		baseLogger.Fatal().Msgf("Consumer failed to connect to NATS Streaming Server: %v", err)
 	}
@@ -46,7 +46,7 @@ func main() {
 			baseLogger.Fatal().Msgf("Failed to close connection: %v", err)
 		}
 		baseLogger.Info().Msg("Consumer disconnected from NATS Streaming Server")
-	}(nc)
+	}(sc)
 
 	baseLogger.Info().Msg("Consumer connected to NATS Streaming Server")
 
@@ -84,7 +84,7 @@ func main() {
 	orderHandlerLogger := logger.NewLogger(baseLogger, "OrderHandler")
 	orderHandler := handler.NewOrderHandler(orderRepository, orderHandlerLogger)
 
-	if _, err = nc.Subscribe(os.Getenv("NATS_SUBJECT"), func(m *stan.Msg) {
+	if _, err = sc.Subscribe(os.Getenv("NATS_SUBJECT"), func(m *stan.Msg) {
 		err = orderHandler.CreateOrder(ctx, m.Data)
 		if err != nil {
 			baseLogger.Error().Msgf("Failed to handle order: %v", err)
@@ -95,15 +95,16 @@ func main() {
 
 	baseLogger.Info().Msg("Consumer subscribed to NATS Streaming Server")
 
-	prometheus.Init()
+	metrics := prometheus.NewMetrics()
+	metrics.Register()
 
 	r := mux.NewRouter()
 
 	r.Handle("/metrics", promhttp.Handler())
 
-	r.HandleFunc("/", prometheus.Handler("/", orderHandler.GetOrderID)).
+	r.HandleFunc("/", metrics.Handler("/", orderHandler.GetOrderID)).
 		Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/order/{id}", prometheus.Handler("/order/{id}", orderHandler.GetOrderByID)).
+	r.HandleFunc("/order/{id}", metrics.Handler("/order/{id}", orderHandler.GetOrderByID)).
 		Methods(http.MethodGet)
 
 	mx := middleware.Panic(baseLogger, r)

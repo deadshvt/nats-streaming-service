@@ -2,10 +2,14 @@ package cache
 
 import (
 	"context"
-	
+
 	"github.com/deadshvt/nats-streaming-service/internal/cache/in_memory"
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
+)
+
+const (
+	InMemory = "in_memory"
 )
 
 type OrderCache interface {
@@ -15,7 +19,7 @@ type OrderCache interface {
 
 func InitOrderCache(cacheType string) (OrderCache, error) {
 	switch cacheType {
-	case "in_memory":
+	case InMemory:
 		return in_memory.NewInMemory(), nil
 	default:
 		return nil, errs.ErrUnsupportedCacheType

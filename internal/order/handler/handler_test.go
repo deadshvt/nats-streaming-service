@@ -37,7 +37,7 @@ func TestCreateOrder_InvalidJSON(t *testing.T) {
 	jsonOrder := []byte(`{[[[[[[}`)
 
 	err := h.CreateOrder(context.Background(), jsonOrder)
-	
+
 	assert.ErrorContains(err, errs.ErrJSONUnmarshal.Error())
 }
 
@@ -132,7 +132,7 @@ func TestGetOrderByID_InvalidID(t *testing.T) {
 
 	id := ""
 
-	r, _ := http.NewRequest("GET", "/order/"+id, nil)
+	r, _ := http.NewRequest(http.MethodGet, "/order/"+id, nil)
 	w := httptest.NewRecorder()
 
 	h.GetOrderByID(w, r)
@@ -158,7 +158,7 @@ func TestGetOrderByID_OrderNotFound(t *testing.T) {
 
 	id := "123"
 
-	r, _ := http.NewRequest("GET", "/order/"+id, nil)
+	r, _ := http.NewRequest(http.MethodGet, "/order/"+id, nil)
 	w := httptest.NewRecorder()
 
 	r = mux.SetURLVars(r, map[string]string{"id": id})
