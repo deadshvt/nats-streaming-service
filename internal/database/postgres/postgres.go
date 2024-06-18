@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
-	
+
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 )
