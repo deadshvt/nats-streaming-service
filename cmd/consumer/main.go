@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/deadshvt/nats-streaming-service/config"
 	"github.com/deadshvt/nats-streaming-service/internal/cache"
-	"github.com/deadshvt/nats-streaming-service/internal/config"
 	"github.com/deadshvt/nats-streaming-service/internal/database"
 	"github.com/deadshvt/nats-streaming-service/internal/middleware"
 	"github.com/deadshvt/nats-streaming-service/internal/nats"

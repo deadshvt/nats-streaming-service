@@ -32,7 +32,7 @@ services:
       - "8080:8080"
     volumes:
       - .env:/project/.env
-      - ./assets:/project/assets
+      - ./web:/project/web
 
   producer:
     container_name: producer

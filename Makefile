@@ -4,7 +4,7 @@ export
 DB_DSN="postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
 
 help:
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 .PHONY: help
 
 run: containers-up migrate-up ### Run containers: postgres, nats-streaming, prometheus and migrate up
@@ -19,11 +19,11 @@ wait-postgres: ### Wait until Postgres is ready
 .PHONY: wait-postgres
 
 migrate-up: wait-postgres ### Migrate up
-	docker run --rm --network $(shell docker inspect --format='{{.HostConfig.NetworkMode}}' $(shell docker compose ps -q postgres)) -v $(shell pwd)/internal/database/migration:/migrations migrate/migrate -path /migrations/ -database $(DB_DSN) -verbose up
+	docker run --rm --network $(shell docker inspect --format='{{.HostConfig.NetworkMode}}' $(shell docker compose ps -q postgres)) -v $(shell pwd)/migrations:/migrations migrate/migrate -path /migrations/ -database $(DB_DSN) -verbose up
 .PHONY: migrate-up
 
 migrate-down: wait-postgres ### Migrate down
-	echo "y" | docker run --rm --network $(shell docker inspect --format='{{.HostConfig.NetworkMode}}' $(shell docker compose ps -q postgres)) -v $(shell pwd)/internal/database/migration:/migrations migrate/migrate -path /migrations/ -database $(DB_DSN) -verbose down -all
+	echo "y" | docker run --rm --network $(shell docker inspect --format='{{.HostConfig.NetworkMode}}' $(shell docker compose ps -q postgres)) -v $(shell pwd)/migrations:/migrations migrate/migrate -path /migrations/ -database $(DB_DSN) -verbose down -all
 .PHONY: migrate-down
 
 lint: ### Run linting

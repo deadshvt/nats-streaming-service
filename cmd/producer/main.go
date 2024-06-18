@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/deadshvt/nats-streaming-service/internal/nats"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/deadshvt/nats-streaming-service/internal/config"
+	"github.com/deadshvt/nats-streaming-service/config"
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
-	generator "github.com/deadshvt/nats-streaming-service/internal/generator/order"
+	orderGenerator "github.com/deadshvt/nats-streaming-service/internal/generator/order"
+	"github.com/deadshvt/nats-streaming-service/internal/nats"
 	"github.com/deadshvt/nats-streaming-service/pkg/logger"
 
 	"github.com/nats-io/stan.go"
@@ -72,11 +72,11 @@ func main() {
 			OrderID string
 		}{OrderID: order.OrderUid})
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 	for i := 0; i < Count; i++ {
-		order := generator.GenerateOrder()
+		order := orderGenerator.RandomOrder()
 		data, err := json.Marshal(*order)
 		if err != nil {
 			baseLogger.Error().Msgf("Failed to marshal order: %v", err)

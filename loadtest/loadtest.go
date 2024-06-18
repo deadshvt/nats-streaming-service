@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/deadshvt/nats-streaming-service/internal/config"
+	"github.com/deadshvt/nats-streaming-service/config"
 
 	vegeta "github.com/tsenart/vegeta/v12/lib"
 )

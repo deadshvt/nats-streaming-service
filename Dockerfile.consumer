@@ -14,7 +14,7 @@ FROM alpine:latest
 WORKDIR /project
 
 COPY .env .env
-COPY ./assets ./assets
+COPY ./web ./web
 COPY --from=builder /project/bin/consumer /project/bin/consumer
 
 CMD ["/project/bin/consumer"]

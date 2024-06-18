@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	Pattern       = "./assets/html/*.html"
+	Pattern       = "./web/html/*.html"
 	OrderFileName = "order.html"
 	IndexFileName = "index.html"
 	ErrorFileName = "error.html"
