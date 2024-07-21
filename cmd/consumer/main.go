@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/deadshvt/nats-streaming-service/config"
-	"github.com/deadshvt/nats-streaming-service/internal/cache"
-	"github.com/deadshvt/nats-streaming-service/internal/database"
 	"github.com/deadshvt/nats-streaming-service/internal/middleware"
 	"github.com/deadshvt/nats-streaming-service/internal/nats"
 	"github.com/deadshvt/nats-streaming-service/internal/order/handler"
 	"github.com/deadshvt/nats-streaming-service/internal/order/repository"
+	"github.com/deadshvt/nats-streaming-service/internal/order/repository/cache"
+	"github.com/deadshvt/nats-streaming-service/internal/order/repository/database"
 	"github.com/deadshvt/nats-streaming-service/internal/prometheus"
 	"github.com/deadshvt/nats-streaming-service/pkg/logger"
 

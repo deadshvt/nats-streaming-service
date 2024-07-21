@@ -3,9 +3,9 @@ package database
 import (
 	"context"
 
-	"github.com/deadshvt/nats-streaming-service/internal/database/postgres"
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
+	"github.com/deadshvt/nats-streaming-service/internal/order/repository/database/postgres"
 )
 
 const (

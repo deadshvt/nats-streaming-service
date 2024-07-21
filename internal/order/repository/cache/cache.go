@@ -3,9 +3,9 @@ package cache
 import (
 	"context"
 
-	"github.com/deadshvt/nats-streaming-service/internal/cache/in_memory"
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
+	"github.com/deadshvt/nats-streaming-service/internal/order/repository/cache/in_memory"
 )
 
 const (

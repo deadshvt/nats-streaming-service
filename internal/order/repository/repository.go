@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/deadshvt/nats-streaming-service/internal/cache"
-	"github.com/deadshvt/nats-streaming-service/internal/database"
 	"github.com/deadshvt/nats-streaming-service/internal/entity"
+	"github.com/deadshvt/nats-streaming-service/internal/order/repository/cache"
+	"github.com/deadshvt/nats-streaming-service/internal/order/repository/database"
 
 	"github.com/rs/zerolog"
 )

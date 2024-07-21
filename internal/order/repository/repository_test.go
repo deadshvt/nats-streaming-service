@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	cacheMocks "github.com/deadshvt/nats-streaming-service/internal/cache/mocks"
-	dbMocks "github.com/deadshvt/nats-streaming-service/internal/database/mocks"
 	"github.com/deadshvt/nats-streaming-service/internal/errs"
 	orderGenerator "github.com/deadshvt/nats-streaming-service/internal/generator/order"
 	"github.com/deadshvt/nats-streaming-service/internal/order/repository"
+	cacheMocks "github.com/deadshvt/nats-streaming-service/internal/order/repository/cache/mocks"
+	dbMocks "github.com/deadshvt/nats-streaming-service/internal/order/repository/database/mocks"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
