@@ -24,7 +24,7 @@ services:
     container_name: consumer
     build:
       context: .
-      dockerfile: Dockerfile.consumer
+      dockerfile: docker/consumer.Dockerfile
     depends_on:
       - postgres
       - nats-streaming
@@ -38,7 +38,7 @@ services:
     container_name: producer
     build:
       context: .
-      dockerfile: Dockerfile.producer
+      dockerfile: docker/producer.Dockerfile
     depends_on:
       - nats-streaming
     volumes:
@@ -51,7 +51,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
 volumes:
   postgres_data:
